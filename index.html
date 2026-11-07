@@ -71,7 +71,7 @@ button:disabled{opacity:.4;cursor:default}
 <div class="side L">
 <div class="tray" id="tray"><b>Коробка з іграшками <button id="pick">Вибрати іграшки</button></b></div>
 <p class="hint">Тягни іграшку з коробки на ялинку (або просто торкнись). Якщо відпустити іграшку не на ялинці, вона повернеться до коробки. Розмір усіх іграшок: кнопки «більші» й «менші» (або коліщатко миші над ялинкою та коробкою з іграшками). Тло-картинку можна зсувати, потягнувши за порожнє місце. У гірлянди можна рухати білі точки, щоб змінити вигин.</p>
-<div class="row"><button id="big">＋ Іграшки більші</button><button id="small">－ Іграшки менші</button><button id="undo" disabled>↶ Скасувати</button><button id="clr">Очистити</button></div>
+<div class="row"><button id="big">＋ Іграшки більші</button><button id="small">－ Іграшки менші</button><button id="undo" disabled>↶ Скасувати</button><button id="clr">Очистити</button><button id="rst">Почати спочатку</button></div>
 </div><div class="side R">
 <div class="row"><button id="gbtn" aria-pressed="false">💡 Гірлянда</button><button id="sbtn" aria-pressed="false">❄️ Сніг</button></div>
 <div class="row" id="trees"><span>Ялинка</span></div>
@@ -456,7 +456,7 @@ function sigHint(){const v=$('sig').value.trim();$('sigh').textContent=v?'На �
 function save(){try{localStorage.setItem(STKEY,hist[hist.length-1])}catch(e){}}
 function updUndo(){$('undo').disabled=hist.length<2}
 function commit(){
-  if(drag)return;
+  if(drag||resetting)return;
   const s=snapshot();
   if(s===hist[hist.length-1])return;
   hist.push(s);if(hist.length>80)hist.shift();
@@ -470,6 +470,17 @@ function undo(){
 function soon(){clearTimeout(ct);ct=setTimeout(commit,350)}
 ['pointerup','pointercancel','click','input','wheel'].forEach(n=>window.addEventListener(n,soon,{passive:true}));
 $('sig').addEventListener('input',()=>{sigHint();draw();document.fonts.load('38px Lobster',$('sig').value||'а').then(()=>draw(),()=>{})});
+let resetting=false,rstT=0;
+$('rst').onclick=()=>{
+  const b=$('rst'),lbl=b.dataset.lbl||(b.dataset.lbl=b.textContent);
+  if(!b.dataset.sure){
+    b.dataset.sure='1';b.textContent='Точно? Натисни ще раз';
+    rstT=setTimeout(()=>{delete b.dataset.sure;b.textContent=lbl},4000);return;
+  }
+  clearTimeout(rstT);clearTimeout(ct);resetting=true;
+  try{localStorage.removeItem(STKEY);localStorage.removeItem(STKEY.replace('state','set'))}catch(e){}
+  location.reload();
+};
 $('undo').onclick=undo;
 window.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'&&!e.shiftKey&&e.target.tagName!=='INPUT'){e.preventDefault();undo()}
