@@ -603,9 +603,9 @@ function closePicker(){$('pk').hidden=true;document.documentElement.style.overfl
 $('pick').onclick=openPicker;
 $('pkclr').onclick=()=>{SET=[];renderPicker()};
 $('pkrand').onclick=()=>{
-  const rest=TOYS.filter(t=>!t.trip).map(t=>t.id);
-  for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}
-  SET=[...TRIP,...rest].slice(0,MAX);renderPicker();
+  const all=TOYS.map(t=>t.id);
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
+  SET=all.slice(0,MAX);renderPicker();
 };
 $('pkok').onclick=closePicker;
 try{const v=JSON.parse(localStorage.getItem(L.setKey)||'[]');if(Array.isArray(v))SET=v.filter(id=>TBY[id]).slice(0,MAX)}catch(e){}
